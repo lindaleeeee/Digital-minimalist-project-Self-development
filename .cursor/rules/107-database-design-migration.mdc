@@ -1,0 +1,124 @@
+---
+description: Database schema design, migration, and versioning guidelines
+globs: ["**/migration/**", "**/db/**", "**/entity/**"]
+alwaysApply: false
+---
+# Database Design & Migration Rules
+
+## Schema Design Principles
+- **Normalization**: Apply 3NF for transactional data, denormalize for analytics
+- **Naming**: Use snake_case for tables/columns (PostgreSQL convention)
+- **Primary Keys**: Use BIGINT `id` with auto-increment
+- **Timestamps**: Include `created_at`, `updated_at` on all entities
+- **Soft Deletes**: Use `deleted_at` instead of hard deletes for important data
+
+## Entity Design (JPA)
+```java
+@Entity
+@Table(name = "habits")
+@EntityListeners(AuditingEntityListener.class)
+public class Habit {
+  
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
+  
+  @Column(nullable = false, length = 100)
+  private String name;
+  
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "user_id", nullable = false)
+  private User user;
+  
+  @CreatedDate
+  @Column(name = "created_at", nullable = false, updatable = false)
+  private LocalDateTime createdAt;
+  
+  @LastModifiedDate
+  @Column(name = "updated_at")
+  private LocalDateTime updatedAt;
+  
+  @Column(name = "deleted_at")
+  private LocalDateTime deletedAt;
+}
+```
+
+## Migration Strategy (Flyway/Liquibase)
+```sql
+-- V001__create_users_table.sql
+CREATE TABLE users (
+  id BIGSERIAL PRIMARY KEY,
+  email VARCHAR(255) NOT NULL UNIQUE,
+  username VARCHAR(50) NOT NULL,
+  oauth_provider VARCHAR(20) NOT NULL,
+  oauth_provider_id VARCHAR(255) NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  deleted_at TIMESTAMP,
+  CONSTRAINT uk_oauth_provider UNIQUE (oauth_provider, oauth_provider_id)
+);
+
+CREATE INDEX idx_users_email ON users(email);
+CREATE INDEX idx_users_deleted_at ON users(deleted_at);
+
+-- V002__create_habits_table.sql
+CREATE TABLE habits (
+  id BIGSERIAL PRIMARY KEY,
+  user_id BIGINT NOT NULL REFERENCES users(id),
+  name VARCHAR(100) NOT NULL,
+  category VARCHAR(50) NOT NULL,
+  target_frequency_per_week INT NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  deleted_at TIMESTAMP
+);
+
+CREATE INDEX idx_habits_user_id ON habits(user_id);
+CREATE INDEX idx_habits_deleted_at ON habits(deleted_at);
+```
+
+## Migration Best Practices
+- **Versioning**: `V{version}__{description}.sql` (e.g., V001__create_users_table.sql)
+- **Reversibility**: Consider creating `U{version}__{description}.sql` for rollbacks
+- **Data Safety**: Never delete columns in migrations, mark as deprecated
+- **Testing**: Test migrations on copy of production data
+- **Ordering**: Migrations run in version order, never modify committed migrations
+
+## Indexing Strategy
+```sql
+-- Single column indexes for foreign keys and frequent WHERE clauses
+CREATE INDEX idx_habits_user_id ON habits(user_id);
+
+-- Composite indexes for common query patterns
+CREATE INDEX idx_habits_user_category ON habits(user_id, category);
+
+-- Partial indexes for soft deletes
+CREATE INDEX idx_habits_active ON habits(user_id) WHERE deleted_at IS NULL;
+```
+
+## Query Optimization Checklist
+- [ ] Add indexes on foreign keys
+- [ ] Add indexes on columns used in WHERE, ORDER BY, GROUP BY
+- [ ] Use EXPLAIN ANALYZE to check query plans
+- [ ] Avoid SELECT *, specify required columns
+- [ ] Use pagination for large result sets
+- [ ] Consider materialized views for complex analytics
+
+## Data Seeding
+```java
+// Use @DataJpaTest for test data
+// Use ApplicationRunner for initial production data
+@Component
+public class DataSeeder implements ApplicationRunner {
+  @Override
+  public void run(ApplicationArguments args) {
+    if (environment.acceptsProfiles(Profiles.of("development"))) {
+      // Seed development data
+    }
+  }
+}
+```
+
+## See also:
+- [302-jpa-querydsl-dynamic-query-rules.mdc](302-jpa-querydsl-dynamic-query-rules.mdc)
+- [310-performance-optimization.mdc](310-performance-optimization.mdc)

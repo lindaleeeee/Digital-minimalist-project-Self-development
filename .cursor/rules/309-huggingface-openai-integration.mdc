@@ -1,0 +1,72 @@
+---
+description: AI/ML integration guidelines for Hugging Face and OpenAI APIs
+globs: ["**/ai/**", "**/ml/**", "**/service/*AI*.java"]
+alwaysApply: false
+---
+# AI/ML Integration Rules
+
+## API Client Configuration
+```java
+// OpenAI client with retry and timeout
+@Configuration
+public class OpenAIConfig {
+  @Bean
+  public OpenAIClient openAIClient(@Value("${openai.api.key}") String apiKey) {
+    return OpenAIClient.builder()
+      .apiKey(apiKey)
+      .timeout(Duration.ofSeconds(30))
+      .maxRetries(3)
+      .build();
+  }
+}
+```
+
+## Use Cases in Digital Minimalist Project
+
+### 1. Content Categorization (Hugging Face)
+- **Model**: `facebook/bart-large-mnli` (zero-shot classification)
+- **Purpose**: Categorize digital content as productive/distracting
+- **Implementation**: Batch processing, cache results in Redis
+
+### 2. Smart Notification Summarization (OpenAI)
+- **Model**: GPT-4-turbo
+- **Purpose**: Summarize accumulated notifications
+- **Prompt**: "Summarize these notifications in 2 sentences, prioritize urgent items"
+
+### 3. Habit Recommendation (OpenAI)
+- **Model**: GPT-4-turbo
+- **Purpose**: Suggest digital wellness habits based on user patterns
+- **Context**: Include user's screen time data, goals, preferences
+
+### 4. Sentiment Analysis (Hugging Face)
+- **Model**: `cardiffnlp/twitter-roberta-base-sentiment`
+- **Purpose**: Analyze user journal entries about digital wellness journey
+
+## Best Practices
+- **Rate Limiting**: Implement exponential backoff
+- **Cost Control**: Set monthly budget alerts, cache common requests
+- **Privacy**: Anonymize user data before sending to external APIs
+- **Fallbacks**: Implement graceful degradation if AI service is unavailable
+- **Monitoring**: Track API usage, latency, error rates
+
+## Error Handling
+```java
+try {
+  String summary = openAIService.summarize(notifications);
+} catch (RateLimitException e) {
+  log.warn("OpenAI rate limit reached, using fallback");
+  return fallbackSummarizer.summarize(notifications);
+} catch (APIException e) {
+  log.error("OpenAI API error: {}", e.getMessage());
+  throw new AIServiceException("Summarization failed", e);
+}
+```
+
+## Testing
+- Mock AI responses in unit tests
+- Use smaller/free models for development
+- Implement feature flags for AI features
+
+## See also:
+- [303-spring-redis-lettuce-redisson-rules.mdc](303-spring-redis-lettuce-redisson-rules.mdc) for caching
+- [202-error-handling-patterns.mdc](202-error-handling-patterns.mdc)

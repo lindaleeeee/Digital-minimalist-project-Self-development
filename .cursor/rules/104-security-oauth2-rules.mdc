@@ -1,0 +1,43 @@
+---
+description: OAuth2 security implementation guidelines for Google and KakaoTalk
+globs: ["**/security/**", "**/config/SecurityConfig.java"]
+alwaysApply: false
+---
+# OAuth2 Security Rules
+
+## Provider Configuration
+- **Google OAuth2**: Use Authorization Code flow with PKCE
+- **KakaoTalk OAuth2**: Follow Kakao REST API guidelines
+- Store credentials in environment variables, never in code
+
+## Spring Security Configuration
+```java
+// Configure OAuth2 login with custom success handler
+http
+  .oauth2Login()
+  .userInfoEndpoint()
+  .userService(customOAuth2UserService)
+  .and()
+  .successHandler(oauth2SuccessHandler);
+```
+
+## Token Management
+- Use JWT for stateless authentication
+- Implement refresh token rotation
+- Set appropriate token expiration (access: 15min, refresh: 7 days)
+- Store refresh tokens securely (HttpOnly cookies or Redis)
+
+## Security Best Practices
+- Validate redirect URIs against whitelist
+- Implement CSRF protection for state parameter
+- Use HTTPS only in production
+- Log authentication events for audit trail
+- Implement rate limiting on auth endpoints
+
+## Session Management
+- Use Redis for distributed session storage
+- Configure session timeout (30 minutes idle)
+- Implement concurrent session control
+
+## See also:
+- [303-spring-redis-lettuce-redisson-rules.mdc](303-spring-redis-lettuce-redisson-rules.mdc)

@@ -1,0 +1,44 @@
+---
+description: RESTful API design conventions and best practices
+globs: ["**/controller/**", "**/api/**"]
+alwaysApply: false
+---
+# REST API Design Conventions
+
+## Naming & Structure
+- Use plural nouns for resources: `/api/users`, `/api/habits`
+- Version APIs: `/api/v1/...`
+- Use kebab-case for multi-word endpoints: `/api/usage-analytics`
+
+## HTTP Methods
+- GET: Retrieve resources (idempotent, cacheable)
+- POST: Create new resources
+- PUT: Full update of resource
+- PATCH: Partial update of resource
+- DELETE: Remove resource
+
+## Response Standards
+```json
+// Success (200-299)
+{
+  "data": {...},
+  "meta": { "timestamp": "...", "requestId": "..." }
+}
+
+// Error (400-599)
+{
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "User-friendly message",
+    "details": [...]
+  }
+}
+```
+
+## Status Codes
+- 200 OK, 201 Created, 204 No Content
+- 400 Bad Request, 401 Unauthorized, 403 Forbidden, 404 Not Found
+- 500 Internal Server Error, 503 Service Unavailable
+
+## See also:
+- [201-code-commenting.mdc](201-code-commenting.mdc) for API documentation
