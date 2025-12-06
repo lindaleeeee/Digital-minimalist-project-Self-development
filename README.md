@@ -4,112 +4,131 @@
 
 Focus Habit Launcher는 의지력이 고갈된 현대인(지식 노동자, 수험생 등)을 위해 설계된 **디지털 미니멀리즘 자기계발 런처**입니다. 사용자가 알람을 끌 때 "오늘 했나요?"라는 질문을 던져, 스마트폰 중독을 방지하고 즉시 목표 행동을 실행하도록 돕습니다.
 
----
+## 🚀 주요 기능
 
-## 🎨 디자인 시스템 (Design System)
+1.  **강제적 개입 런처 (Forced Intervention Launcher)**
+    *   알람 해제 시 시스템 UI를 덮는 전체 화면 오버레이 실행
+    *   다른 앱 진입 차단으로 디지털 주의 분산 방지
 
-사용자의 시각적 피로도를 줄이고 몰입감을 높이기 위해 **Dark Mode 중심**의 미니멀한 디자인 언어를 사용합니다.
+2.  **습관 실천 관리 (Habit Execution Management)**
+    *   **Step 1**: 알람 트리거 및 런처 실행
+    *   **Step 2**: 직관적인 YES / NO 선택 (인지 부하 최소화)
+    *   **Step 3**: 습관 수행 기록 (텍스트/음성 메모)
+    *   **Step 4**: 즉각적인 성취 피드백
 
-*   **Color Palette**
-    *   **Background**: Dark Gray (`#1E1E1E`) - 눈의 피로 최소화 및 몰입 유도
-    *   **Primary**: Focus Purple (`#6C63FF`) - 창의성과 집중을 상징
-    *   **Habit Colors**:
-        *   🧘 Meditation: `#6C63FF` (Purple)
-        *   📚 Reading: `#FF6584` (Pink)
-        *   💊 Health: `#43D097` (Green)
-        *   🤸 Exercise: `#FFC107` (Amber)
-    *   **Status**:
-        *   Completed: Gray (`#808080`) + Strike-through
-        *   Active: Vibrant Original Colors
+3.  **Local-First 데이터 저장**
+    *   네트워크 연결 없이 모든 데이터 로컬 저장 (Room DB)
+    *   개인 정보 보호 및 빠른 응답 속도 보장
 
-*   **Typography**
-    *   **Font Family**: System Default (San Francisco / Roboto)
-    *   **Hierarchy**: 명확한 정보 전달을 위한 Title(H1) - Body - Caption 구조
+4.  **시각적 동기 부여 (Visual Motivation)**
+    *   완료한 습관 Gray-out 처리로 성취감 시각화
+    *   실시간 그래프 애니메이션으로 달성률 확인
 
-*   **Components**
-    *   **Habit Card**: 터치 영역을 넓게 확보한 카드형 UI
-    *   **Full Screen Overlay**: 시스템 UI를 가리는 몰입형 런처 화면
+5.  **다크 모드 디자인 (Dark Mode Design)**
+    *   눈의 피로를 최소화하는 Dark Theme 기본 적용
+    *   집중력을 높이는 미니멀 UI
 
----
+6.  **통계 및 리포트**
+    *   일간/주간 습관 달성 추이 분석
+    *   카테고리별(건강, 학습, 명상 등) 활동 분석
 
-## 📊 데이터 흐름 (Data Flow)
+## 🛠 기술 스택
 
-**Local-First Architecture**를 채택하여 네트워크 연결 없이도 모든 로직이 기기 내에서 완결됩니다.
-
-1.  **트리거 (Trigger)**: `AlarmManager`가 지정된 시각에 알람 이벤트를 발생시킵니다.
-2.  **런처 실행 (Overlay)**: `BroadcastReceiver`가 알람을 감지하여 잠금 화면 위에 `LauncherActivity`를 오버레이로 띄웁니다.
-3.  **사용자 입력 (Input)**: 사용자의 YES/NO 선택 및 기록 데이터(텍스트/음성)가 입력됩니다.
-4.  **로컬 저장 (Storage)**: 입력된 데이터는 즉시 `Room Database` (SQLite)에 영구 저장됩니다.
-5.  **시각화 & 내보내기 (Output)**: 저장된 데이터는 실시간으로 그래프(`Canvas`/`Vico`)로 렌더링되거나 CSV 파일로 추출됩니다.
-
----
-
-## 🔑 핵심 UX 특징 (Core UX Features)
-
-1.  **강제적 개입 (Intervention)**: 알람 해제 시 사용자의 의지와 상관없이 런처가 실행되어 스마트폰 사용 패턴을 '소비'에서 '생산'으로 전환합니다.
-2.  **인지 부하 최소화 (Binary Choice)**: 복잡한 메뉴 대신 **YES / NO** 두 가지 선택지만 제시하여 고민하는 시간을 없앱니다.
-3.  **즉각적 보상 (Instant Feedback)**: 기록 저장 직후 그래프 애니메이션을 보여주어 성취감을 즉시 시각화합니다.
-4.  **완료의 시각화 (Visual Completion)**: 완료한 습관은 회색으로 비활성화(Gray-out)되어 "오늘 할 일이 줄어들고 있음"을 직관적으로 보여줍니다.
-5.  **중단 없는 흐름 (Seamless Flow)**: 알람 → 기록 → 종료까지 불필요한 팝업이나 로딩 없이 하나의 흐름으로 연결됩니다.
-
----
-
-## 🔄 주요 흐름 (Main Flow)
-
-1.  **설정**: 사용자가 습관(예: 명상)과 알람(예: 오전 7시)을 등록합니다.
-2.  **기상/알림**: 지정된 시간에 알람이 울리며 스마트폰 화면 전체가 런처로 전환됩니다.
-3.  **선택**:
-    *   **YES**: 습관 목록 화면으로 진입하여 수행한 활동을 선택합니다.
-    *   **NO**: 동기 부여 명언 카드를 확인하고 앱이 종료됩니다.
-4.  **기록**: 선택한 습관에 대해 간단한 메모나 음성 기록을 남깁니다.
-5.  **완료**: 수행 결과가 그래프에 반영되고, 런처가 종료되며 원래의 스마트폰 화면으로 돌아갑니다.
-
----
-
-## 🛠 기술 스택 (Tech Stack)
-
+*   **Framework**: Jetpack Compose (Material3)
 *   **Language**: Kotlin (100%)
-*   **UI Framework**: Jetpack Compose (Material3)
 *   **Architecture**: MVVM + Clean Architecture
-*   **Local DB**: Room (SQLite)
-*   **OS Integration**: AlarmManager, Notification, System Alert Window
+*   **Database**: Room (SQLite)
+*   **Concurrency**: Coroutines + Flow
+*   **OS Integration**: AlarmManager, BroadcastReceiver, System Alert Window
+*   **Charts**: Vico / Canvas API
 
----
+## 📦 설치 및 실행
 
-## 🌳 Component Tree
+**필수 요구사항**
+*   Android Studio Ladybug 이상
+*   JDK 17
+*   Android SDK 34
 
-```mermaid
-graph TD
-    Root[MainActivity] --> Theme[FocusHabitLauncherTheme]
-    Theme --> Surface
-    Surface --> NavHost[FocusHabitApp / NavHost]
-    
-    NavHost -->|Route: launcher| Launcher[LauncherScreen]
-    NavHost -->|Route: habit_select| Selector[HabitSelectionScreen]
-    NavHost -->|Route: log_input| Logger[LogInputScreen]
-    NavHost -->|Route: quote| Quote[QuoteScreen]
-    
-    Selector --> Card[HabitItemCard]
-    
-    style Root fill:#f9f,stroke:#333,stroke-width:2px
-    style NavHost fill:#bbf,stroke:#333,stroke-width:2px
-    style Launcher fill:#dfd,stroke:#333,stroke-width:1px
-    style Selector fill:#dfd,stroke:#333,stroke-width:1px
-    style Logger fill:#dfd,stroke:#333,stroke-width:1px
-    style Quote fill:#dfd,stroke:#333,stroke-width:1px
+```bash
+# 레포지토리 클론
+git clone https://github.com/your-username/focus-habit-launcher.git
+
+# Android Studio에서 프로젝트 열기
+# (File > Open > focus-habit-launcher 폴더 선택)
+
+# Gradle Sync 및 빌드
+# (자동으로 수행되거나 'Sync Project with Gradle Files' 클릭)
+
+# 에뮬레이터 또는 기기에서 실행
+# (Run 버튼 클릭, API 34+ 권장)
 ```
 
----
+## 📁 프로젝트 구조
 
-## 🚀 시작하기 (Getting Started)
+```
+app/src/main/java/com/example/focushabit/
+├── ui/                     # UI 계층 (Compose)
+│   ├── screens/            # 화면 단위 컴포넌트
+│   │   ├── LauncherScreen.kt       # 런처 메인 화면
+│   │   ├── HabitSelectionScreen.kt # 습관 선택 화면
+│   │   ├── LogInputScreen.kt       # 기록 입력 화면
+│   │   └── QuoteScreen.kt          # 동기부여 명언 화면
+│   └── theme/              # 테마 및 스타일 (Color, Type)
+├── model/                  # 데이터 모델 (Habit, Log)
+└── MainActivity.kt         # 앱 진입점 및 네비게이션 설정
+```
 
-1.  **필수 요구사항**: Android Studio Ladybug 이상, JDK 17, Android SDK 34
-2.  **설치**:
-    ```bash
-    git clone https://github.com/your-username/focus-habit-launcher.git
-    ```
-3.  **실행**: Android Studio에서 프로젝트 열기 후 `Run` (API 34+ 에뮬레이터 권장)
+## 🎨 디자인 시스템
 
----
+*   **Color Palette**:
+    *   **Primary**: Focus Purple (`#6C63FF`) - 창의성과 집중
+    *   **Background**: Dark Gray (`#1E1E1E`) - 몰입 유도
+    *   **Habit Colors**:
+        *   🧘 Meditation: Purple
+        *   📚 Reading: Pink
+        *   💊 Health: Green
+        *   🤸 Exercise: Amber
+    *   **Status**:
+        *   Completed: Gray + Strike-through
+        *   Active: Vibrant Original Colors
 
-**License**: MIT
+*   **Typography**:
+    *   Font Family: System Default (San Francisco / Roboto)
+    *   Hierarchy: Title(H1) - Body - Caption 구조
+
+*   **Components**:
+    *   **Habit Card**: 터치 영역을 넓게 확보한 카드형 UI
+    *   **Full Screen Overlay**: 시스템 UI를 가리는 몰입형 런처
+
+## 📊 데이터 흐름
+
+1.  **트리거 (Trigger)**: `AlarmManager`가 지정된 시각에 알람 이벤트 발생
+2.  **런처 실행 (Launcher)**: `BroadcastReceiver`가 감지하여 `LauncherActivity` 오버레이 실행
+3.  **사용자 입력 (Input)**: YES/NO 선택 및 메모/음성 데이터 입력
+4.  **로컬 저장 (Storage)**: 입력 데이터 `Room Database`에 영구 저장 (Auto-save)
+5.  **시각화 (Visualization)**: 저장된 데이터를 기반으로 실시간 그래프 렌더링
+
+## 🔑 핵심 UX 특징
+
+*   **강제적 개입 (Intervention)**: 의지력 개입을 최소화하는 강제 실행 런처로 '소비'에서 '생산' 모드 전환
+*   **인지 부하 최소화**: 복잡한 메뉴 대신 **YES / NO** 두 가지 선택지만 제시
+*   **즉각적 보상**: 기록 직후 그래프 애니메이션 및 완료 항목 Gray-out 처리로 성취감 고취
+*   **중단 없는 흐름 (Seamless Flow)**: 알람 → 기록 → 종료까지 로딩 없는 매끄러운 경험 제공
+
+## 📝 주요 흐름
+
+1.  **시작**: 사용자 습관(예: 명상, 독서) 및 알람 시간 설정
+2.  **기상/알림**: 지정된 시간에 알람이 울리며 스마트폰 화면 전체가 런처로 전환
+3.  **선택**: 수행 여부(YES/NO) 결정
+    *   **YES**: 습관 목록 진입 및 수행한 활동 선택
+    *   **NO**: 동기 부여 명언 확인 후 종료
+4.  **기록**: 선택한 습관에 대한 간단한 메모 또는 음성 기록 남기기
+5.  **완료**: 결과 그래프 반영, 런처 종료 및 일반 스마트폰 화면 복귀
+
+## 🚧 향후 개선 사항
+
+*   **소셜 기능**: 친구와 습관 공유 및 그룹 챌린지
+*   **클라우드 동기화**: Firebase/Supabase 연동을 통한 기기 간 데이터 백업
+*   **AI 맞춤형 코칭**: 사용자 패턴 분석을 통한 습관 추천 및 인사이트 제공
+*   **웨어러블 연동**: 워치 앱 지원으로 더 간편한 기록
+*   **게이미피케이션**: 배지, 레벨 시스템 도입으로 지속적인 동기 부여

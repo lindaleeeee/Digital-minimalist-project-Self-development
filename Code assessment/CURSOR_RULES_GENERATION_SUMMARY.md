@@ -363,3 +363,5 @@ Your Digital Minimalist Project now has a comprehensive set of Cursor rules cove
 
 
 
+
+
