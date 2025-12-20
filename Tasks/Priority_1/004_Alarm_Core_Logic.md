@@ -34,3 +34,6 @@ Android 시스템 알람(AlarmManager)을 연동하여 정확한 시간에 알�
 
 
 
+
+
+
