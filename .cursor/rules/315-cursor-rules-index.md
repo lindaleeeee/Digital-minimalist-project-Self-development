@@ -208,6 +208,7 @@ To customize rules for your needs:
 
 
 
+<<<<<<< HEAD
 
 
 
@@ -217,3 +218,5 @@ To customize rules for your needs:
 
 
 
+=======
+>>>>>>> 4d04a3753a15b9d3789ec834e92a7e39d2acbd1d

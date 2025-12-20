@@ -40,7 +40,6 @@ Focus Habit Launcher는 의지력이 고갈된 현대인(지식 노동자, 수�
 *   **Database**: Room (SQLite)
 *   **Concurrency**: Coroutines + Flow
 *   **OS Integration**: AlarmManager, BroadcastReceiver, System Alert Window
-*   **Charts**: Vico / Canvas API (Dashboard Visualization)
 
 ## 📦 설치 및 실행
 
@@ -70,12 +69,11 @@ app/src/main/java/com/example/focushabit/
 ├── ui/                     # UI 계층 (Compose)
 │   ├── screens/            # 화면 단위 컴포넌트
 │   │   ├── LauncherScreen.kt       # 런처 메인 화면
-│   │   ├── DashboardScreen.kt      # 습관 데이터 분석 대시보드
+
 │   │   ├── HabitSelectionScreen.kt # 습관 선택 화면
 │   │   ├── LogInputScreen.kt       # 기록 입력 화면
 │   │   └── QuoteScreen.kt          # 동기부여 명언 화면
 │   └── theme/              # 테마 및 스타일 (Color, Type)
-├── model/                  # 데이터 모델 (Habit, Log, Analysis)
 └── MainActivity.kt         # 앱 진입점 및 네비게이션 설정
 ```
 
@@ -92,10 +90,7 @@ app/src/main/java/com/example/focushabit/
     *   **Status**:
         *   Completed: Gray + Strike-through
         *   Active: Vibrant Original Colors
-    *   **Dashboard**:
-        *   **Growth**: Blue (`#2196F3`) - 성장 추이
-        *   **Insight**: Green (`#4CAF50`) - 긍정적 분석
-        *   **Alert**: Amber (`#FFC107`) - 개선 포인트
+
 
 *   **Typography**:
     *   Font Family: System Default (San Francisco / Roboto)
@@ -104,7 +99,6 @@ app/src/main/java/com/example/focushabit/
 *   **Components**:
     *   **Habit Card**: 터치 영역을 넓게 확보한 카드형 UI
     *   **Full Screen Overlay**: 시스템 UI를 가리는 몰입형 런처
-    *   **Analysis Card**: 데이터 시각화 및 AI 인사이트 제공 카드
 
 ## 📊 데이터 흐름
 
@@ -121,6 +115,7 @@ app/src/main/java/com/example/focushabit/
 *   **즉각적 보상**: 기록 직후 그래프 애니메이션 및 완료 항목 Gray-out 처리로 성취감 고취
 *   **중단 없는 흐름 (Seamless Flow)**: 알람 → 기록 → 종료까지 로딩 없는 매끄러운 경험 제공
 
+<<<<<<< HEAD
 ## 📈 습관 데이터 분석 대시보드 (기능 예정)
 
 사용자의 습관 형성 데이터를 시각화하여 제공하는 대시보드 페이지입니다. 첨부된 레퍼런스(사업계획서 대시보드)와 유사한 UI로 구현될 예정입니다.
@@ -142,6 +137,8 @@ app/src/main/java/com/example/focushabit/
     *   **시간 관리**: 습관 수행에 투자한 시간 분석
     *   **분석**: 주간/월간 그래프 및 트렌드 시각화
 
+=======
+>>>>>>> 4d04a3753a15b9d3789ec834e92a7e39d2acbd1d
 ## 📝 주요 흐름
 
 1.  **시작**: 사용자 습관(예: 명상, 독서) 및 알람 시간 설정
