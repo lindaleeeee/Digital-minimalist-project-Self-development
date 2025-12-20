@@ -1,0 +1,216 @@
+---
+description: TypeScript type safety and best practices for React applications
+globs: ["**/*.ts", "**/*.tsx"]
+alwaysApply: false
+---
+# TypeScript Best Practices
+
+## Type Declarations
+
+### Domain Models
+```typescript
+// types/habit.ts
+export interface Habit {
+  id: string;
+  userId: string;
+  name: string;
+  category: HabitCategory;
+  targetFrequencyPerWeek: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export type HabitCategory = 
+  | 'screen-time' 
+  | 'social-media' 
+  | 'notifications' 
+  | 'focus-time';
+
+export interface HabitInput extends Omit<Habit, 'id' | 'createdAt' | 'updatedAt'> {}
+
+export interface HabitUpdate extends Partial<HabitInput> {
+  id: string;
+}
+```
+
+### API Types
+```typescript
+// types/api.ts
+export interface ApiResponse<T> {
+  data: T;
+  meta: {
+    timestamp: string;
+    requestId: string;
+  };
+}
+
+export interface ApiError {
+  error: {
+    code: string;
+    message: string;
+    details?: unknown;
+  };
+}
+
+export interface PaginatedResponse<T> extends ApiResponse<T[]> {
+  meta: ApiResponse<T>['meta'] & {
+    page: number;
+    pageSize: number;
+    totalItems: number;
+    totalPages: number;
+  };
+}
+```
+
+### React Component Props
+```typescript
+// components/HabitCard.tsx
+interface HabitCardProps {
+  habit: Habit;
+  onEdit?: (habit: Habit) => void;
+  onDelete?: (id: string) => void;
+  className?: string;
+}
+
+export function HabitCard({ habit, onEdit, onDelete, className }: HabitCardProps) {
+  // Component implementation
+}
+
+// For children prop
+interface ContainerProps {
+  children: React.ReactNode;
+  title: string;
+}
+```
+
+## Advanced Types
+
+### Utility Types
+```typescript
+// Extract specific props from component
+type ButtonVariant = ComponentProps<typeof Button>['variant'];
+
+// Make all properties optional recursively
+type DeepPartial<T> = {
+  [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P];
+};
+
+// Require at least one property
+type RequireAtLeastOne<T, Keys extends keyof T = keyof T> = 
+  Pick<T, Exclude<keyof T, Keys>> & 
+  { [K in Keys]-?: Required<Pick<T, K>> & Partial<Pick<T, Exclude<Keys, K>>> }[Keys];
+```
+
+### Discriminated Unions
+```typescript
+type LoadingState = { status: 'loading' };
+type ErrorState = { status: 'error'; error: Error };
+type SuccessState<T> = { status: 'success'; data: T };
+
+type AsyncState<T> = LoadingState | ErrorState | SuccessState<T>;
+
+// Type narrowing
+function renderHabits(state: AsyncState<Habit[]>) {
+  switch (state.status) {
+    case 'loading':
+      return <LoadingSpinner />;
+    case 'error':
+      return <ErrorMessage error={state.error} />; // state.error is typed
+    case 'success':
+      return <HabitList habits={state.data} />; // state.data is typed
+  }
+}
+```
+
+## Type Guards
+```typescript
+// Type predicate
+function isHabit(obj: unknown): obj is Habit {
+  return (
+    typeof obj === 'object' &&
+    obj !== null &&
+    'id' in obj &&
+    'name' in obj &&
+    'category' in obj
+  );
+}
+
+// Using zod for runtime validation
+import { z } from 'zod';
+
+const HabitSchema = z.object({
+  id: z.string(),
+  userId: z.string(),
+  name: z.string().min(1).max(100),
+  category: z.enum(['screen-time', 'social-media', 'notifications', 'focus-time']),
+  targetFrequencyPerWeek: z.number().int().min(1).max(7),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+});
+
+type Habit = z.infer<typeof HabitSchema>;
+
+// Validate at runtime
+const habit = HabitSchema.parse(unknownData);
+```
+
+## Generic Types
+```typescript
+// Generic hook
+function useAsync<T, E = Error>() {
+  const [state, setState] = useState<AsyncState<T>>({ status: 'loading' });
+  
+  const execute = async (promise: Promise<T>) => {
+    setState({ status: 'loading' });
+    try {
+      const data = await promise;
+      setState({ status: 'success', data });
+    } catch (error) {
+      setState({ status: 'error', error: error as E });
+    }
+  };
+  
+  return { state, execute };
+}
+
+// Usage
+const { state, execute } = useAsync<Habit[]>();
+```
+
+## Best Practices
+- ✅ Enable strict mode in `tsconfig.json`
+- ✅ Avoid `any`, use `unknown` for truly unknown types
+- ✅ Use `const` assertions for literal types: `as const`
+- ✅ Prefer interfaces for object shapes, types for unions/intersections
+- ✅ Use discriminated unions for state machines
+- ✅ Leverage utility types (Partial, Pick, Omit, Record)
+- ✅ Add JSDoc comments for complex types
+- ✅ Use Zod/Yup for runtime validation at boundaries (APIs, forms)
+- ❌ Don't use `ts-ignore`, use `ts-expect-error` with comment if needed
+- ❌ Don't cast unless absolutely necessary, prefer type guards
+
+## tsconfig.json
+```json
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "jsx": "react-jsx",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  }
+}
+```
+
+## See also:
+- [306-react-vite-tailwind-rules.mdc](306-react-vite-tailwind-rules.mdc)
+- [313-react-state-management.mdc](313-react-state-management.mdc)

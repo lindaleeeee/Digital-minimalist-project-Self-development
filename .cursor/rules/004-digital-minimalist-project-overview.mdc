@@ -1,0 +1,43 @@
+---
+description: Digital Minimalist Project - Core vision and features
+globs: 
+alwaysApply: true
+---
+# PROJECT OVERVIEW: Digital Minimalist Project
+
+## Vision
+Empower users to achieve digital wellness through mindful technology usage, reducing digital overload while maintaining productivity and meaningful connections.
+
+## Core Features
+- **Digital Habit Tracking**: Monitor and analyze screen time, app usage patterns
+- **Mindful Notifications**: Smart notification management with focus modes
+- **Content Curation**: AI-powered content filtering for meaningful engagement
+- **Productivity Tools**: Time-blocking, distraction-free work environments
+- **Progress Analytics**: Personal insights and digital wellness metrics
+
+## Target Audience
+- Primary users: Digital professionals seeking work-life balance (25-45 years)
+- Secondary users: Students and content creators looking to optimize focus time
+
+## Project Goals
+- Reduce average daily screen time by 30% for active users
+- Increase user-reported productivity and well-being scores
+- Build a community of 10,000+ digital minimalists within first year
+- Achieve 70%+ user retention rate after 30 days
+
+## Success Metrics
+- Daily Active Users (DAU) and Monthly Active Users (MAU)
+- Average session duration and feature engagement rates
+- User satisfaction scores (NPS > 50)
+- Reduction in reported digital stress levels
+
+## Project Philosophy
+- Privacy-first: User data stays secure and private
+- Non-addictive design: No dark patterns or engagement manipulation
+- Evidence-based: Features grounded in behavioral psychology research
+- Accessible: Inclusive design for all users
+- Senior engineering practices and comprehensive documentation
+
+## See also:
+- [002-tech-stack.mdc](002-tech-stack.mdc) for implementation details
+- [003-development-guidelines.mdc](003-development-guidelines.mdc) for development standards
