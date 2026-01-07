@@ -1,0 +1,38 @@
+---
+description: gh CLI 명령어를 사용하여 로컬 Tasks 마크다운 문서를 기반으로 GitHub 이슈를 발행하는 절차 (마일스톤 제외)
+globs: Tasks/**/*.md, docs/**/*.md
+alwaysApply: false
+---
+# GitHub Issue 발행 (gh CLI 기반)
+
+## Context
+- 로컬 `Tasks/Priority_N/` 디렉토리의 마크다운 파일을 GitHub 이슈로 변환할 때
+- 마일스톤 방식 대신 라벨과 Project V2 날짜 필드를 사용하여 일정 관리할 때
+- 자동화 스크립트로 여러 이슈를 일괄 생성할 때
+
+## Rules
+1. **이슈 제목 형식**: `[#NNN] Task Title` (예: `[#001] 프로젝트 초기화`)
+2. **라벨 구성**: `priority-N`, `type:feature|refactoring|setup`, `epic:epic-name` (마일스톤 사용 금지)
+3. **본문 소스**: `--body-file` 옵션으로 마크다운 파일 직접 사용
+4. **날짜 관리**: Project V2의 `Start Date`/`End Date` 필드 사용 (마일스톤 대체)
+
+## Examples
+<example>
+# 단일 이슈 생성
+gh issue create \
+  --title "[#001] 프로젝트 초기화 및 기본 환경 설정" \
+  --body-file "Tasks/Priority_1/001_Init_Config.md" \
+  --label "priority-1,type:setup,epic:init-config"
+
+# 인증 확인
+gh auth status
+gh repo set-default owner/repo-name
+</example>
+
+<bad-example>
+# 마일스톤 사용 (금지)
+gh issue create --title "Task" --milestone "v1.0" ...
+
+# 라벨 없이 생성
+gh issue create --title "Task" --body "..." ...
+</bad-example>

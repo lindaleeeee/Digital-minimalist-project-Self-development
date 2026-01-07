@@ -1,7 +1,20 @@
+---
+title: "Task 007: 통계 및 목표 관리 (Analytics & Goal)"
+epic: "EPIC-5 (ANALYTICS_GOAL)"
+source: "6. Task추출결과.md"
+start-date: 2025-12-24
+target-date: 2025-12-31
+due-date: 2025-12-31
+priority: "Medium"
+status: "To Do"
+---
+
 # Task 007: 통계 및 목표 관리 (Analytics & Goal)
 
 > **관련 EPIC:** EPIC-5 (ANALYTICS_GOAL)
 > **출처:** 6. Task추출결과.md
+> **시작일자:** 2025-12-24
+> **종료일자:** 2025-12-31
 
 ## 🎯 목표
 축적된 습관 기록 데이터를 분석하여 그래프로 시각화하고, 사용자의 목표 달성 현황을 보여줍니다.

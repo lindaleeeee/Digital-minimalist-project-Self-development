@@ -1,7 +1,20 @@
+---
+title: "Task 011: 비기능 요구사항 및 보안 점검"
+epic: "Non-Functional"
+source: "6. Task추출결과.md"
+start-date: 2025-12-24
+target-date: 2025-12-31
+due-date: 2025-12-31
+priority: "Low"
+status: "To Do"
+---
+
 # Task 011: 비기능 요구사항 및 보안 점검
 
 > **관련 EPIC:** Non-Functional
 > **출처:** 6. Task추출결과.md
+> **시작일자:** 2025-12-24
+> **종료일자:** 2025-12-31
 
 ## 🎯 목표
 앱의 성능(콜드 스타트), 보안(권한 관리), 데이터 격리 등 비기능적 품질 요소를 점검하고 개선합니다.

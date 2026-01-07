@@ -1,10 +1,7 @@
 ---
 description: Defines the project build steps, environment variable setup for development and deployment.
-globs: 
 alwaysApply: false
 ---
-Globs: /**/*
-
 # BUILDING PROCESS
 - Depends on selected languages/frameworks.
 # ENV VARIABLES FOR DEVELOPMENT

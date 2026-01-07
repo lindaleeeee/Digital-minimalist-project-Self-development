@@ -1,7 +1,20 @@
+---
+title: "Task 013: 최종 QA 및 배포 준비"
+epic: "Deployment"
+source: "6. Task추출결과.md (Phase 4)"
+start-date: 2025-12-24
+target-date: 2025-12-31
+due-date: 2025-12-31
+priority: "High"
+status: "To Do"
+---
+
 # Task 013: 최종 QA 및 배포 준비
 
 > **관련 EPIC:** Deployment
 > **출처:** 6. Task추출결과.md (Phase 4)
+> **시작일자:** 2025-12-24
+> **종료일자:** 2025-12-31
 
 ## 🎯 목표
 모든 기능 개발을 완료하고, 버그 수정 및 최종 품질 점검을 통해 스토어 배포 준비를 마칩니다.

@@ -1,7 +1,20 @@
+---
+title: "Task 002: 프론트엔드 PoC UI 구현 및 성능 최적화"
+epic: "EPIC-1 (FRONTEND_POC) + 성능 최적화"
+source: "6. Task추출결과.md & Improvement_Tasks_Issue.md (1단계)"
+start-date: 2025-12-24
+target-date: 2025-12-31
+due-date: 2025-12-31
+priority: "High"
+status: "To Do"
+---
+
 # Task 002: 프론트엔드 PoC UI 구현 및 성능 최적화
 
 > **관련 EPIC:** EPIC-1 (FRONTEND_POC) + 성능 최적화
 > **출처:** 6. Task추출결과.md & Improvement_Tasks_Issue.md (1단계)
+> **시작일자:** 2025-12-24
+> **종료일자:** 2025-12-31
 
 ## 🎯 목표
 핵심 사용자 흐름(Launcher Flow)에 대한 UI 프로토타입을 구현하고, 빈번한 렌더링에 대한 성능 최적화를 적용합니다.

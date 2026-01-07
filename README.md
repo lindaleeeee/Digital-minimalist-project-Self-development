@@ -4,6 +4,8 @@
 
 Focus Habit Launcher는 의지력이 고갈된 현대인(지식 노동자, 수험생 등)을 위해 설계된 **디지털 미니멀리즘 자기계발 런처**입니다. 사용자가 알람을 끌 때 "오늘 했나요?"라는 질문을 던져, 스마트폰 중독을 방지하고 즉시 목표 행동을 실행하도록 돕습니다.
 
+본 프로젝트는 **결과 지향형(C-type) 랜딩페이지**를 전면에 배치하여 사용자의 전환율을 극대화하고, 직관적인 대시보드를 통해 습관 형성을 돕습니다.
+
 ## 🚀 주요 기능
 
 1.  **강제적 개입 런처 (Forced Intervention Launcher)**
@@ -76,6 +78,14 @@ app/src/main/java/com/example/focushabit/
 │   └── theme/              # 테마 및 스타일 (Color, Type)
 ├── model/                  # 데이터 모델 (Habit, Log)
 └── MainActivity.kt         # 앱 진입점 및 네비게이션 설정
+
+# Web Prototype (Next.js)
+firebase-prototype-251129/src/app/
+├── page.tsx                # [NEW] 결과 지향형 랜딩페이지 (Root)
+├── dashboard/
+│   └── page.tsx            # [MOVE] 서비스 메인 대시보드
+├── layout.tsx              # 전역 레이아웃 및 테마 설정
+└── globals.css             # Tailwind CSS 및 디자인 시스템
 ```
 
 ## 🎨 디자인 시스템
@@ -132,6 +142,7 @@ app/src/main/java/com/example/focushabit/
 *   [**UX 시나리오 (User Workflow)**](docs/USER_WORKFLOW.md): 사용자 경험 흐름 및 핵심 시나리오
 *   [**컴포넌트 구조 (Architecture)**](docs/COMPONENT_ARCHITECTURE.md): 시스템 아키텍처 다이어그램 및 분석
 *   [**코드 품질 평가 (Code Quality)**](docs/CODE_QUALITY_ASSESSMENT.md): 코드베이스 현황 및 개선 제안
+*   [**랜딩페이지 체크리스트 (Checklist)**](docs/LANDING_PAGE_CHECKLIST.md): C유형 전략 기반 랜딩페이지 평가 결과
 
 ## 🚧 향후 개선 사항
 

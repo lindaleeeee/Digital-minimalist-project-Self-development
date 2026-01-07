@@ -1,11 +1,9 @@
 ---
-description: 
+description: Manages the structure and usage of tools, scripts, and development utilities within the project.
 globs: .cursor/tools/**/*,.cursor/tools/temp/**/*
 alwaysApply: false
 ---
-## Description: Manages the structure and usage of tools, scripts, and development utilities within the project.
-
-## Tools & Scripts Management Guidelines:
+# Tools & Scripts Management Guidelines:
 
 ## Categories:
 - Build scripts

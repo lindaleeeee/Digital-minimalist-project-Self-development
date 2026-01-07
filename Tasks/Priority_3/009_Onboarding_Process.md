@@ -1,7 +1,20 @@
+---
+title: "Task 009: 온보딩 및 초기 설정 (Onboarding)"
+epic: "EPIC-7 (ONBOARDING)"
+source: "6. Task추출결과.md"
+start-date: 2025-12-24
+target-date: 2025-12-31
+due-date: 2025-12-31
+priority: "Low"
+status: "To Do"
+---
+
 # Task 009: 온보딩 및 초기 설정 (Onboarding)
 
 > **관련 EPIC:** EPIC-7 (ONBOARDING)
 > **출처:** 6. Task추출결과.md
+> **시작일자:** 2025-12-24
+> **종료일자:** 2025-12-31
 
 ## 🎯 목표
 앱 최초 실행 시 사용자에게 필요한 권한을 요청하고, 기본 습관 데이터를 설정하는 온보딩 프로세스를 구현합니다.

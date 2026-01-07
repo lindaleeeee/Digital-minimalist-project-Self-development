@@ -1,7 +1,20 @@
+---
+title: "Task 006: 구조적 리팩토링 및 에러 처리 (Structural Refactoring)"
+epic: "Refactoring"
+source: "Improvement_Tasks_Issue.md (2단계)"
+start-date: 2025-12-24
+target-date: 2025-12-31
+due-date: 2025-12-31
+priority: "Medium"
+status: "To Do"
+---
+
 # Task 006: 구조적 리팩토링 및 에러 처리 (Structural Refactoring)
 
 > **관련 EPIC:** Refactoring
 > **출처:** Improvement_Tasks_Issue.md (2단계)
+> **시작일자:** 2025-12-24
+> **종료일자:** 2025-12-31
 
 ## 🎯 목표
 복잡한 컴포넌트를 분리하고, 전역적인 에러 처리 메커니즘을 도입하여 코드 유지보수성을 높입니다.

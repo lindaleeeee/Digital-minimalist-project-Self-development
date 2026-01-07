@@ -1,7 +1,20 @@
+---
+title: "Task 012: 접근성 개선 및 코드 스플리팅"
+epic: "Accessibility & Scalability"
+source: "Improvement_Tasks_Issue.md (3단계)"
+start-date: 2025-12-24
+target-date: 2025-12-31
+due-date: 2025-12-31
+priority: "Low"
+status: "To Do"
+---
+
 # Task 012: 접근성 개선 및 코드 스플리팅
 
 > **관련 EPIC:** Accessibility & Scalability
 > **출처:** Improvement_Tasks_Issue.md (3단계)
+> **시작일자:** 2025-12-24
+> **종료일자:** 2025-12-31
 
 ## 🎯 목표
 모든 사용자가 앱을 편리하게 사용할 수 있도록 접근성을 개선하고, 앱 크기 및 로딩 속도를 최적화합니다.

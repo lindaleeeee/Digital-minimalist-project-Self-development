@@ -1,7 +1,20 @@
+---
+title: "Task 004: 알람 코어 로직 및 스케줄러 (Alarm Core)"
+epic: "EPIC-3 (ALARM_CORE)"
+source: "6. Task추출결과.md"
+start-date: 2025-12-24
+target-date: 2025-12-31
+due-date: 2025-12-31
+priority: "High"
+status: "To Do"
+---
+
 # Task 004: 알람 코어 로직 및 스케줄러 (Alarm Core)
 
 > **관련 EPIC:** EPIC-3 (ALARM_CORE)
 > **출처:** 6. Task추출결과.md
+> **시작일자:** 2025-12-24
+> **종료일자:** 2025-12-31
 
 ## 🎯 목표
 Android 시스템 알람(AlarmManager)을 연동하여 정확한 시간에 알람이 울리도록 구현합니다.

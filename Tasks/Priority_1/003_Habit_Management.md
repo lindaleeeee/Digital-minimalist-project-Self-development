@@ -1,7 +1,20 @@
+---
+title: "Task 003: 습관 관리 데이터 및 로직 구현 (Habit Management)"
+epic: "EPIC-2 (HABIT_MGMT)"
+source: "6. Task추출결과.md"
+start-date: 2025-12-24
+target-date: 2025-12-31
+due-date: 2025-12-31
+priority: "High"
+status: "To Do"
+---
+
 # Task 003: 습관 관리 데이터 및 로직 구현 (Habit Management)
 
 > **관련 EPIC:** EPIC-2 (HABIT_MGMT)
 > **출처:** 6. Task추출결과.md
+> **시작일자:** 2025-12-24
+> **종료일자:** 2025-12-31
 
 ## 🎯 목표
 사용자가 습관을 생성, 수정, 삭제할 수 있는 데이터 레이어와 비즈니스 로직을 구현합니다.

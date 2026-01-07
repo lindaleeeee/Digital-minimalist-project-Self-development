@@ -1,7 +1,20 @@
+---
+title: "Task 005: 런처 플로우 및 데이터 연동 (Launcher Flow)"
+epic: "EPIC-4 (LAUNCHER_FLOW)"
+source: "6. Task추출결과.md"
+start-date: 2025-12-24
+target-date: 2025-12-31
+due-date: 2025-12-31
+priority: "Medium"
+status: "To Do"
+---
+
 # Task 005: 런처 플로우 및 데이터 연동 (Launcher Flow)
 
 > **관련 EPIC:** EPIC-4 (LAUNCHER_FLOW)
 > **출처:** 6. Task추출결과.md
+> **시작일자:** 2025-12-24
+> **종료일자:** 2025-12-31
 
 ## 🎯 목표
 알람이 울렸을 때 잠금 화면 위로 런처 UI를 띄우고, 실제 데이터(DB)와 연동하여 기록을 저장합니다.

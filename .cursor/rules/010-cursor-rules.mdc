@@ -1,10 +1,8 @@
 ---
-description: 
+description: Declares how .mdc files are structured and prioritized across the project.
 globs: .cursor/rules/*.mdc
 alwaysApply: false
 ---
-Description: Declares how .mdc files are structured and prioritized across the project.
-
 # .mdc File Structure Guide
 - File naming: NNN-name.mdc (NNN = 001–299)
   - 001–099: Core/project-wide rules

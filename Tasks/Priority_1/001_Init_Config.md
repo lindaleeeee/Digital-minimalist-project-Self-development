@@ -1,7 +1,20 @@
+---
+title: "Task 001: 프로젝트 초기화 및 기본 환경 설정 (Init & Config)"
+epic: "EPIC-0 (INIT_CONFIG)"
+source: "6. Task추출결과.md"
+start-date: 2025-12-24
+target-date: 2025-12-31
+due-date: 2025-12-31
+priority: "High"
+status: "To Do"
+---
+
 # Task 001: 프로젝트 초기화 및 기본 환경 설정 (Init & Config)
 
 > **관련 EPIC:** EPIC-0 (INIT_CONFIG)
 > **출처:** 6. Task추출결과.md
+> **시작일자:** 2025-12-24
+> **종료일자:** 2025-12-31
 
 ## 🎯 목표
 안정적인 개발을 위한 안드로이드 프로젝트 기반 환경, 아키텍처 및 데이터베이스 기초를 구축합니다.

@@ -1,7 +1,20 @@
+---
+title: "Task 010: 테스트 코드 작성 및 안정성 확보"
+epic: "QA & Reliability"
+source: "Improvement_Tasks_Issue.md (3단계)"
+start-date: 2025-12-24
+target-date: 2025-12-31
+due-date: 2025-12-31
+priority: "Low"
+status: "To Do"
+---
+
 # Task 010: 테스트 코드 작성 및 안정성 확보
 
 > **관련 EPIC:** QA & Reliability
 > **출처:** Improvement_Tasks_Issue.md (3단계)
+> **시작일자:** 2025-12-24
+> **종료일자:** 2025-12-31
 
 ## 🎯 목표
 주요 비즈니스 로직과 UI 컴포넌트에 대한 테스트 코드를 작성하여 앱의 안정성을 확보합니다.

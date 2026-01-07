@@ -1,7 +1,20 @@
+---
+title: "Task 008: 데이터 내보내기 및 공유 (Export)"
+epic: "EPIC-6 (EXPORT_LOG)"
+source: "6. Task추출결과.md"
+start-date: 2025-12-24
+target-date: 2025-12-31
+due-date: 2025-12-31
+priority: "Medium"
+status: "To Do"
+---
+
 # Task 008: 데이터 내보내기 및 공유 (Export)
 
 > **관련 EPIC:** EPIC-6 (EXPORT_LOG)
 > **출처:** 6. Task추출결과.md
+> **시작일자:** 2025-12-24
+> **종료일자:** 2025-12-31
 
 ## 🎯 목표
 사용자의 습관 기록 데이터를 CSV 파일로 추출하여 외부로 공유할 수 있는 기능을 구현합니다.
