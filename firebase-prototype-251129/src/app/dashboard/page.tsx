@@ -14,12 +14,34 @@ import { Badge } from '@/components/ui/badge';
 import { useCoin } from '@/lib/coin-context';
 import { useAuth } from '@/lib/auth-context';
 import { PRIORITY_COLORS, PRIORITY_LABELS, ATTENDANCE_COINS, ACHIEVEMENT_MAX_COINS } from '@/lib/types';
-import { Coins, Target, TrendingUp, CalendarDays, BarChart3, ShoppingBag, History, Loader2, CheckCircle2 } from 'lucide-react';
+import { Coins, Target, TrendingUp, CalendarDays, BarChart3, ShoppingBag, History, Loader2, CheckCircle2, Wand2 } from 'lucide-react';
+import { useTaskPolling } from '@/hooks/use-task-polling';
+import { AgentTaskIndicator } from '@/components/agent-task-indicator';
+import apiClient from '@/lib/api/client';
+import { Button } from '@/components/ui/button';
 
 export default function DashboardPage() {
   const { user } = useAuth();
   const { totalCoins, todayGoals, todayRecord, loading } = useCoin();
   const [activeTab, setActiveTab] = useState('dashboard');
+
+  // AI Agent Task Polling Hook
+  const { startPolling, isPolling, status, result } = useTaskPolling({
+    onSuccess: (data) => {
+      console.log('AI 에이전트 작업 완료:', data);
+    }
+  });
+
+  const handleTriggerAgentTask = async () => {
+    try {
+      // 1. 비동기 작업 요청 (202 Accepted 및 taskId 반환)
+      const response = await apiClient.post<{ taskId: string, status: string }>('/api/v1/projects/agentic-task');
+      // 2. 받은 taskId로 폴링 시작
+      startPolling(response.taskId);
+    } catch (err) {
+      console.error('Agent task trigger failed:', err);
+    }
+  };
 
   // 오늘 달성률(%) 계산
   const todayAchievement = useMemo(() => {
@@ -79,14 +101,24 @@ export default function DashboardPage() {
             {/* 대시보드 탭 */}
             {/* ======================================== */}
             <TabsContent value="dashboard" className="space-y-6">
-              {/* 인사말 */}
-              <div>
-                <h1 className="text-2xl font-bold">
-                  안녕하세요, {user?.displayName || '사용자'}님! 👋
-                </h1>
-                <p className="text-muted-foreground text-sm mt-1">
-                  오늘도 목표를 달성해보세요.
-                </p>
+              {/* 인사말 & 에이전트 작업 트리거 */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <h1 className="text-2xl font-bold">
+                    안녕하세요, {user?.displayName || '사용자'}님! 👋
+                  </h1>
+                  <p className="text-muted-foreground text-sm mt-1">
+                    오늘도 목표를 달성해보세요.
+                  </p>
+                </div>
+                <Button
+                  onClick={handleTriggerAgentTask}
+                  disabled={isPolling}
+                  className="gap-2 bg-indigo-500 hover:bg-indigo-600 text-white shadow-lg"
+                >
+                  {isPolling ? <Loader2 className="w-4 h-4 animate-spin" /> : <Wand2 className="w-4 h-4" />}
+                  {isPolling ? 'AI 분석 중...' : 'AI 리포트 생성 (비동기 테스트)'}
+                </Button>
               </div>
 
               {/* 코인 잔액 + 오늘 달성률 카드 */}
@@ -231,6 +263,9 @@ export default function DashboardPage() {
             </TabsContent>
           </Tabs>
         </main>
+
+        {/* AI Agent Task Indicator (Non-blocking) */}
+        <AgentTaskIndicator isPolling={isPolling} status={status} />
       </div>
     </AuthGuard>
   );

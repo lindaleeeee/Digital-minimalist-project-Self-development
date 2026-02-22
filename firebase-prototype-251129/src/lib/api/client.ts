@@ -6,6 +6,8 @@
 
 import { ApiException } from './types';
 import { getFirebaseAuth } from '@/lib/firebase';
+import { apiLogger } from './apiLogger';
+import { ulid } from 'ulid';
 
 // ============================================================
 // Auth Token Helper
@@ -36,7 +38,7 @@ async function getAuthHeaders(): Promise<Record<string, string>> {
 /**
  * API 기본 URL
  * - 개발: 프록시 사용 시 빈 문자열
- * - 프로덕션: 백엔드 서버 주소
+ * - 프로덕션: 백엔드 서버 정적 주소
  */
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || '';
 
@@ -50,38 +52,6 @@ const IS_MOCK_MODE = process.env.NEXT_PUBLIC_API_MOCK === 'true';
  * API 요청 타임아웃 (ms)
  */
 const REQUEST_TIMEOUT = 10000;
-
-// ============================================================
-// 로깅 유틸리티
-// ============================================================
-
-/**
- * API 호출 로깅
- * @param method HTTP 메서드
- * @param url 요청 URL
- * @param phase 호출 단계 (시작/완료/에러)
- * @param details 추가 정보
- */
-function logApiCall(
-  method: string,
-  url: string,
-  phase: 'start' | 'complete' | 'error',
-  details?: unknown
-): void {
-  const prefix = '[Front-API]';
-
-  switch (phase) {
-    case 'start':
-      console.log(`${prefix} 데이터 가져오기 시작: ${method} ${url}`);
-      break;
-    case 'complete':
-      console.log(`${prefix} 데이터 가져오기 완료: ${method} ${url}`, details ?? '');
-      break;
-    case 'error':
-      console.error(`${prefix} 에러 발생!`, { method, url, error: details });
-      break;
-  }
-}
 
 // ============================================================
 // HTTP 클라이언트
@@ -168,7 +138,9 @@ export const apiClient = {
    */
   async get<T>(endpoint: string, options?: RequestOptions): Promise<T> {
     const url = `${API_BASE_URL}${endpoint}`;
-    logApiCall('GET', url, 'start');
+    const requestId = ulid();
+    const requestHeaders = { ...options?.headers, 'X-Request-ID': requestId };
+    apiLogger.logRequest(requestId, 'GET', url, requestHeaders);
 
     try {
       const authHeaders = await getAuthHeaders();
@@ -186,10 +158,10 @@ export const apiClient = {
       );
 
       const data = await parseResponse<T>(response);
-      logApiCall('GET', url, 'complete', { status: response.status });
+      apiLogger.logResponse(requestId, 'GET', url, response.status, data);
       return data;
     } catch (error) {
-      logApiCall('GET', url, 'error', error);
+      apiLogger.logError(requestId, 'GET', url, error);
       throw error;
     }
   },
@@ -199,7 +171,9 @@ export const apiClient = {
    */
   async post<T>(endpoint: string, body?: unknown, options?: RequestOptions): Promise<T> {
     const url = `${API_BASE_URL}${endpoint}`;
-    logApiCall('POST', url, 'start');
+    const requestId = ulid();
+    const requestHeaders = { ...options?.headers, 'X-Request-ID': requestId };
+    apiLogger.logRequest(requestId, 'POST', url, requestHeaders, body);
 
     try {
       const authHeaders = await getAuthHeaders();
@@ -218,10 +192,10 @@ export const apiClient = {
       );
 
       const data = await parseResponse<T>(response);
-      logApiCall('POST', url, 'complete', { status: response.status });
+      apiLogger.logResponse(requestId, 'POST', url, response.status, data);
       return data;
     } catch (error) {
-      logApiCall('POST', url, 'error', error);
+      apiLogger.logError(requestId, 'POST', url, error);
       throw error;
     }
   },
@@ -231,7 +205,9 @@ export const apiClient = {
    */
   async put<T>(endpoint: string, body?: unknown, options?: RequestOptions): Promise<T> {
     const url = `${API_BASE_URL}${endpoint}`;
-    logApiCall('PUT', url, 'start');
+    const requestId = ulid();
+    const requestHeaders = { ...options?.headers, 'X-Request-ID': requestId };
+    apiLogger.logRequest(requestId, 'PUT', url, requestHeaders, body);
 
     try {
       const authHeaders = await getAuthHeaders();
@@ -250,10 +226,10 @@ export const apiClient = {
       );
 
       const data = await parseResponse<T>(response);
-      logApiCall('PUT', url, 'complete', { status: response.status });
+      apiLogger.logResponse(requestId, 'PUT', url, response.status, data);
       return data;
     } catch (error) {
-      logApiCall('PUT', url, 'error', error);
+      apiLogger.logError(requestId, 'PUT', url, error);
       throw error;
     }
   },
@@ -263,7 +239,9 @@ export const apiClient = {
    */
   async patch<T>(endpoint: string, body?: unknown, options?: RequestOptions): Promise<T> {
     const url = `${API_BASE_URL}${endpoint}`;
-    logApiCall('PATCH', url, 'start');
+    const requestId = ulid();
+    const requestHeaders = { ...options?.headers, 'X-Request-ID': requestId };
+    apiLogger.logRequest(requestId, 'PATCH', url, requestHeaders, body);
 
     try {
       const authHeaders = await getAuthHeaders();
@@ -282,10 +260,10 @@ export const apiClient = {
       );
 
       const data = await parseResponse<T>(response);
-      logApiCall('PATCH', url, 'complete', { status: response.status });
+      apiLogger.logResponse(requestId, 'PATCH', url, response.status, data);
       return data;
     } catch (error) {
-      logApiCall('PATCH', url, 'error', error);
+      apiLogger.logError(requestId, 'PATCH', url, error);
       throw error;
     }
   },
@@ -295,7 +273,9 @@ export const apiClient = {
    */
   async delete<T = void>(endpoint: string, options?: RequestOptions): Promise<T> {
     const url = `${API_BASE_URL}${endpoint}`;
-    logApiCall('DELETE', url, 'start');
+    const requestId = ulid();
+    const requestHeaders = { ...options?.headers, 'X-Request-ID': requestId };
+    apiLogger.logRequest(requestId, 'DELETE', url, requestHeaders);
 
     try {
       const authHeaders = await getAuthHeaders();
@@ -313,14 +293,13 @@ export const apiClient = {
       );
 
       const data = await parseResponse<T>(response);
-      logApiCall('DELETE', url, 'complete', { status: response.status });
+      apiLogger.logResponse(requestId, 'DELETE', url, response.status, data);
       return data;
     } catch (error) {
-      logApiCall('DELETE', url, 'error', error);
+      apiLogger.logError(requestId, 'DELETE', url, error);
       throw error;
     }
   },
 };
 
 export default apiClient;
-

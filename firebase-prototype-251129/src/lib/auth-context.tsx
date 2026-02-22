@@ -11,6 +11,7 @@
 import { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from 'react';
 import type { User, Auth, GoogleAuthProvider } from 'firebase/auth';
 import { getFirebaseAuth, getGoogleProvider, getAuthFunctions, isFirebaseConfigured } from './firebase';
+import apiClient from './api/client';
 
 // ============================================================
 // Types
@@ -69,7 +70,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                     setAuth(authInstance);
                     setGoogleProviderInstance(providerInstance);
 
-                    const unsubscribe = onAuthStateChanged(authInstance, (user) => {
+                    const unsubscribe = onAuthStateChanged(authInstance, (user: User | null) => {
                         setUser(user);
                         setLoading(false);
                     });
@@ -144,6 +145,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             if (displayName) {
                 await updateProfile(result.user, { displayName });
             }
+
+            // Backend API 연동: 신규 가입 환영 메일 발송
+            try {
+                const targetName = displayName || email.split('@')[0];
+                await apiClient.post(`/api/v1/test/email/send-welcome?to=${email}&name=${targetName}`);
+                console.log('[Auth] Welcome email triggered for new user.');
+            } catch (mailErr) {
+                console.warn('[Auth] Welcome email failed, but signup succeeded.', mailErr);
+            }
+
         } catch (err: any) {
             setError(getErrorMessage(err.code));
             throw err;
@@ -154,9 +165,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const signInWithGoogle = useCallback(async () => {
         if (!auth || !googleProviderInstance) return;
         try {
-            const { signInWithPopup } = await getAuthFunctions();
+            const { signInWithPopup, getAdditionalUserInfo } = await getAuthFunctions();
             setError(null);
-            await signInWithPopup(auth, googleProviderInstance);
+            const result = await signInWithPopup(auth, googleProviderInstance);
+
+            // 신규 가입 여부 확인
+            const additionalInfo = getAdditionalUserInfo(result);
+            if (additionalInfo?.isNewUser) {
+                // Backend API 연동: 구글 신규 가입 환영 메일 발송
+                try {
+                    const user = result.user;
+                    const targetName = user.displayName || user.email?.split('@')[0] || 'User';
+                    await apiClient.post(`/api/v1/test/email/send-welcome?to=${user.email}&name=${targetName}`);
+                    console.log('[Auth] Welcome email triggered for new Google user.');
+                } catch (mailErr) {
+                    console.warn('[Auth] Welcome email failed, but Google signup succeeded.', mailErr);
+                }
+            }
         } catch (err: any) {
             setError(getErrorMessage(err.code));
             throw err;
