@@ -5,6 +5,29 @@
  */
 
 import { ApiException } from './types';
+import { getFirebaseAuth } from '@/lib/firebase';
+
+// ============================================================
+// Auth Token Helper
+// ============================================================
+
+/**
+ * 현재 로그인된 사용자의 Firebase ID Token 가져오기
+ * @returns Bearer 토큰 헤더 객체 또는 빈 객체
+ */
+async function getAuthHeaders(): Promise<Record<string, string>> {
+  try {
+    const auth = await getFirebaseAuth();
+    const currentUser = auth?.currentUser;
+    if (currentUser) {
+      const token = await currentUser.getIdToken();
+      return { 'Authorization': `Bearer ${token}` };
+    }
+  } catch (error) {
+    console.warn('[Front-API] Auth 토큰 가져오기 실패:', error);
+  }
+  return {};
+}
 
 // ============================================================
 // 환경 설정
@@ -46,7 +69,7 @@ function logApiCall(
   details?: unknown
 ): void {
   const prefix = '[Front-API]';
-  
+
   switch (phase) {
     case 'start':
       console.log(`${prefix} 데이터 가져오기 시작: ${method} ${url}`);
@@ -82,7 +105,7 @@ async function fetchWithTimeout(
 ): Promise<Response> {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeout);
-  
+
   try {
     const response = await fetch(url, {
       ...options,
@@ -99,7 +122,7 @@ async function fetchWithTimeout(
  */
 async function parseResponse<T>(response: Response): Promise<T> {
   const contentType = response.headers.get('content-type');
-  
+
   // JSON 응답이 아닌 경우
   if (!contentType?.includes('application/json')) {
     if (!response.ok) {
@@ -111,9 +134,9 @@ async function parseResponse<T>(response: Response): Promise<T> {
     }
     return {} as T;
   }
-  
+
   const data = await response.json();
-  
+
   // HTTP 에러 상태
   if (!response.ok) {
     throw new ApiException(
@@ -123,7 +146,7 @@ async function parseResponse<T>(response: Response): Promise<T> {
       data.error?.details
     );
   }
-  
+
   // 성공 응답에서 data 필드 추출 (있는 경우)
   return data.data !== undefined ? data.data : data;
 }
@@ -139,27 +162,29 @@ export const apiClient = {
   isMockMode(): boolean {
     return IS_MOCK_MODE;
   },
-  
+
   /**
    * GET 요청
    */
   async get<T>(endpoint: string, options?: RequestOptions): Promise<T> {
     const url = `${API_BASE_URL}${endpoint}`;
     logApiCall('GET', url, 'start');
-    
+
     try {
+      const authHeaders = await getAuthHeaders();
       const response = await fetchWithTimeout(
         url,
         {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
+            ...authHeaders,
             ...options?.headers,
           },
         },
         options?.timeout ?? REQUEST_TIMEOUT
       );
-      
+
       const data = await parseResponse<T>(response);
       logApiCall('GET', url, 'complete', { status: response.status });
       return data;
@@ -168,28 +193,30 @@ export const apiClient = {
       throw error;
     }
   },
-  
+
   /**
    * POST 요청
    */
   async post<T>(endpoint: string, body?: unknown, options?: RequestOptions): Promise<T> {
     const url = `${API_BASE_URL}${endpoint}`;
     logApiCall('POST', url, 'start');
-    
+
     try {
+      const authHeaders = await getAuthHeaders();
       const response = await fetchWithTimeout(
         url,
         {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            ...authHeaders,
             ...options?.headers,
           },
           body: body ? JSON.stringify(body) : undefined,
         },
         options?.timeout ?? REQUEST_TIMEOUT
       );
-      
+
       const data = await parseResponse<T>(response);
       logApiCall('POST', url, 'complete', { status: response.status });
       return data;
@@ -198,28 +225,30 @@ export const apiClient = {
       throw error;
     }
   },
-  
+
   /**
    * PUT 요청
    */
   async put<T>(endpoint: string, body?: unknown, options?: RequestOptions): Promise<T> {
     const url = `${API_BASE_URL}${endpoint}`;
     logApiCall('PUT', url, 'start');
-    
+
     try {
+      const authHeaders = await getAuthHeaders();
       const response = await fetchWithTimeout(
         url,
         {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
+            ...authHeaders,
             ...options?.headers,
           },
           body: body ? JSON.stringify(body) : undefined,
         },
         options?.timeout ?? REQUEST_TIMEOUT
       );
-      
+
       const data = await parseResponse<T>(response);
       logApiCall('PUT', url, 'complete', { status: response.status });
       return data;
@@ -228,28 +257,30 @@ export const apiClient = {
       throw error;
     }
   },
-  
+
   /**
    * PATCH 요청
    */
   async patch<T>(endpoint: string, body?: unknown, options?: RequestOptions): Promise<T> {
     const url = `${API_BASE_URL}${endpoint}`;
     logApiCall('PATCH', url, 'start');
-    
+
     try {
+      const authHeaders = await getAuthHeaders();
       const response = await fetchWithTimeout(
         url,
         {
           method: 'PATCH',
           headers: {
             'Content-Type': 'application/json',
+            ...authHeaders,
             ...options?.headers,
           },
           body: body ? JSON.stringify(body) : undefined,
         },
         options?.timeout ?? REQUEST_TIMEOUT
       );
-      
+
       const data = await parseResponse<T>(response);
       logApiCall('PATCH', url, 'complete', { status: response.status });
       return data;
@@ -258,27 +289,29 @@ export const apiClient = {
       throw error;
     }
   },
-  
+
   /**
    * DELETE 요청
    */
   async delete<T = void>(endpoint: string, options?: RequestOptions): Promise<T> {
     const url = `${API_BASE_URL}${endpoint}`;
     logApiCall('DELETE', url, 'start');
-    
+
     try {
+      const authHeaders = await getAuthHeaders();
       const response = await fetchWithTimeout(
         url,
         {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',
+            ...authHeaders,
             ...options?.headers,
           },
         },
         options?.timeout ?? REQUEST_TIMEOUT
       );
-      
+
       const data = await parseResponse<T>(response);
       logApiCall('DELETE', url, 'complete', { status: response.status });
       return data;

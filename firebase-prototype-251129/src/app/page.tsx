@@ -27,7 +27,7 @@ export default function LandingPage() {
             <Logo />
             <span className="text-xl font-bold tracking-tight text-primary">Focus Habit</span>
           </div>
-          <Link href="/dashboard">
+          <Link href="/login">
             <Button variant="ghost" className="text-white/70 hover:text-white hover:bg-white/10">
               로그인
             </Button>

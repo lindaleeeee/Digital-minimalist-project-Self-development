@@ -62,7 +62,14 @@ src/
 └── ai/                    # AI/Genkit 관련
 ```
 
-## 🚀 시작하기
+## � 최근 업데이트 (Firebase SSR 에러 해결)
+
+- **SSR 에러(500) 해결**: 서버 사이드 렌더링 시점의 `localStorage` 접근 에러(`TypeError: localStorage.getItem is not a function`)를 원천 차단했습니다.
+- **Firebase Auth 비동기/지연 초기화**: `firebase/auth` 패키지가 서버가 아닌 브라우저 환경에서만 동적 임포트(Dynamic Import)되도록 `firebase.ts` 로직을 전면 개편했습니다 (`getFirebaseAuth()`).
+- **폴리필(Polyfill) 개선 보장**: `next.config.ts` 및 `instrumentation.ts` 최상단에 강력한 메모리 기반 `localStorage` 폴리필을 주입하여 최상단 런타임 에러를 방지했습니다.
+- **클라이언트 전용 브릿지 컴포넌트**: `ClientProviders` 컴포넌트를 이용해 브라우저 API에 의존하는 Auth/Coin 레이어가 서버 렌더링에서 배제되도록(`ssr: false`) 조치했습니다.
+
+## �🚀 시작하기
 
 ### 필수 조건
 - Node.js 18+

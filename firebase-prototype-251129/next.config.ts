@@ -1,4 +1,22 @@
-import type {NextConfig} from 'next';
+/**
+ * @file next.config.ts
+ * @description Next.js configuration + early localStorage polyfill for SSR
+ */
+
+// SSR 환경에서 localStorage.getItem 관련 에러 방지 (최우선 실행)
+if (typeof globalThis !== 'undefined' && (typeof (globalThis as any).localStorage === 'undefined' || typeof (globalThis as any).localStorage.getItem !== 'function')) {
+  const store = new Map<string, string>();
+  (globalThis as any).localStorage = {
+    getItem: (key: string) => store.get(key) ?? null,
+    setItem: (key: string, value: string) => store.set(key, value),
+    removeItem: (key: string) => store.delete(key),
+    clear: () => store.clear(),
+    length: 0,
+    key: (index: number) => null,
+  };
+}
+
+import type { NextConfig } from 'next';
 
 /**
  * 백엔드 API 서버 URL

@@ -1,266 +1,237 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
-import type { Habit, HabitLog, Alarm } from '@/lib/types';
+import { useState, useMemo } from 'react';
 import { Header } from '@/components/header';
-import { AlarmSetter } from '@/components/alarm-setter';
-import { HabitLogList } from '@/components/habit-log-list';
-import { NoteModal } from '@/components/note-modal';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { useToast } from '@/hooks/use-toast';
-import { HabitManager } from '@/components/habit-manager';
+import { AuthGuard } from '@/components/auth-guard';
+import { CalendarView } from '@/components/calendar-view';
+import { GoalSetter } from '@/components/goal-setter';
+import { CoinShop } from '@/components/coin-shop';
 import { HistoryView } from '@/components/history-view';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
-import { format } from 'date-fns';
-import { alarmApi, habitApi } from '@/lib/api';
+import { Progress } from '@/components/ui/progress';
+import { Badge } from '@/components/ui/badge';
+import { useCoin } from '@/lib/coin-context';
+import { useAuth } from '@/lib/auth-context';
+import { PRIORITY_COLORS, PRIORITY_LABELS, ATTENDANCE_COINS, ACHIEVEMENT_MAX_COINS } from '@/lib/types';
+import { Coins, Target, TrendingUp, CalendarDays, BarChart3, ShoppingBag, History, Loader2, CheckCircle2 } from 'lucide-react';
 
 export default function DashboardPage() {
-  const [habitLogs, setHabitLogs] = useState<HabitLog[]>([]);
-  const [habits, setHabits] = useState<Habit[]>([]);
-  const [alarms, setAlarms] = useState<Alarm[]>([]);
-  const [activeAlarm, setActiveAlarm] = useState<Alarm | null>(null);
-  const [isClient, setIsClient] = useState(false);
-  const [isPaidUser, setIsPaidUser] = useState(false);
-  const timeoutIdsRef = useRef<Map<string, NodeJS.Timeout>>(new Map());
-  const { toast } = useToast();
+  const { user } = useAuth();
+  const { totalCoins, todayGoals, todayRecord, loading } = useCoin();
+  const [activeTab, setActiveTab] = useState('dashboard');
 
-  useEffect(() => {
-    setIsClient(true);
-    
-    // localStorage에서 로그, 결제 상태 불러오기
-    try {
-      const storedLogs = localStorage.getItem('focus-habit-logs');
-      if (storedLogs) setHabitLogs(JSON.parse(storedLogs));
+  // 오늘 달성률(%) 계산
+  const todayAchievement = useMemo(() => {
+    if (todayGoals.length === 0) return 0;
+    const verifiedGoals = todayGoals.filter(g => g.verified);
+    if (verifiedGoals.length === 0) return 0;
+    const avg = verifiedGoals.reduce((sum, g) => sum + (g.achievementPercent || 0), 0) / todayGoals.length;
+    return Math.round(avg);
+  }, [todayGoals]);
 
-      const storedPaidStatus = localStorage.getItem('focus-habit-paid');
-      if (storedPaidStatus) setIsPaidUser(JSON.parse(storedPaidStatus));
-    } catch (error) {
-      console.error("Failed to parse from localStorage", error);
-    }
+  // 오늘 코인 내역 계산
+  const todayCoins = todayRecord?.totalCoins || 0;
+  const verifiedCount = todayGoals.filter(g => g.verified).length;
+  const totalGoalCount = todayGoals.length;
 
-    // 백엔드 API에서 습관과 알람 가져오기
-    const fetchData = async () => {
-      try {
-        // 습관 조회
-        const apiHabits = await habitApi.getAll();
-        if (apiHabits.length > 0) {
-          setHabits(apiHabits.map(h => ({ 
-            ...h, 
-            weeklyGoalMinutes: h.weeklyGoalMinutes || 300 
-          })));
-          console.log('[Dashboard] 백엔드에서 습관 로드 완료:', apiHabits.length, '개');
-        }
-      } catch (error) {
-        console.error("[Dashboard] 습관 API 호출 실패:", error);
-      }
-
-      try {
-        // 알람 조회
-        const apiAlarms = await alarmApi.getAll();
-        // API에서 받아온 알람들을 타이머에 등록
-        apiAlarms.forEach(alarm => addAlarm(alarm, false));
-        console.log('[Dashboard] 백엔드에서 알람 로드 완료:', apiAlarms.length, '개');
-      } catch (error) {
-        console.error("[Dashboard] 알람 API 호출 실패:", error);
-      }
-    };
-    fetchData();
-
-    if ('Notification' in window && Notification.permission !== 'granted' && Notification.permission !== 'denied') {
-      Notification.requestPermission();
-    }
-  }, []);
-
-  useEffect(() => {
-    if (isClient) localStorage.setItem('focus-habit-logs', JSON.stringify(habitLogs));
-  }, [habitLogs, isClient]);
-
-  useEffect(() => {
-    if (isClient) localStorage.setItem('focus-habit-habits', JSON.stringify(habits));
-  }, [habits, isClient]);
-
-  useEffect(() => {
-    if (isClient) localStorage.setItem('focus-habit-alarms', JSON.stringify(alarms));
-  }, [alarms, isClient]);
-
-  useEffect(() => {
-    if (isClient) localStorage.setItem('focus-habit-paid', JSON.stringify(isPaidUser));
-  }, [isPaidUser, isClient]);
-
-  const triggerAlarm = useCallback((alarm: Alarm) => {
-    setActiveAlarm(alarm);
-    setAlarms(prev => prev.filter(a => a.id !== alarm.id));
-    if ('Notification' in window && Notification.permission === 'granted') {
-      new Notification('Focus Habit Launcher', {
-        body: `It's ${alarm.time}! Time to log your habit.`,
-        icon: '/favicon.ico',
-      });
-    }
-    toast({
-      title: "It's time!",
-      description: `Time to log your habit for ${alarm.time}.`,
-    });
-  }, [toast]);
-
-  const addAlarm = useCallback((alarm: Alarm, showToast = true) => {
-    setAlarms(prevAlarms => {
-      if (prevAlarms.some(a => a.time === alarm.time && a.habitId === alarm.habitId)) {
-        if (showToast) {
-          toast({
-            variant: "destructive",
-            title: "Duplicate Alarm",
-            description: "An alarm for this time and habit already exists.",
-          });
-        }
-        return prevAlarms;
-      }
-
-      const [hours, minutes] = alarm.time.split(':').map(Number);
-      const now = new Date();
-      const alarmTime = new Date(now);
-      alarmTime.setHours(hours, minutes, 0, 0);
-
-      if (alarmTime <= now) alarmTime.setDate(alarmTime.getDate() + 1);
-
-      const timeoutMs = alarmTime.getTime() - now.getTime();
-      const timeoutId = setTimeout(() => triggerAlarm(alarm), timeoutMs);
-
-      timeoutIdsRef.current.set(alarm.id, timeoutId);
-      if (showToast) {
-        toast({
-          title: "Alarm Set!",
-          description: `You will be notified at ${alarm.time}.`,
-        });
-      }
-      return [...prevAlarms, alarm].sort((a, b) => a.time.localeCompare(b.time));
-    });
-  }, [toast, triggerAlarm]);
-
-  const deleteAlarm = useCallback((alarmId: string) => {
-    const timeoutId = timeoutIdsRef.current.get(alarmId);
-    if (timeoutId) {
-      clearTimeout(timeoutId);
-      timeoutIdsRef.current.delete(alarmId);
-    }
-    setAlarms(prev => prev.filter(a => a.id !== alarmId));
-    toast({
-      title: "Alarm Removed",
-      description: "The selected alarm has been removed.",
-    });
-  }, [toast]);
-
-  const handleLogHabit = async (
-    note: string,
-    startTime: number,
-    habit: Habit,
-    actualDurationMinutes: number,
-    skipped: boolean
-  ) => {
-    const endTime = Date.now();
-    const newLog: HabitLog = {
-      id: crypto.randomUUID(),
-      habitId: habit.id,
-      note,
-      startTime,
-      endTime,
-      duration: format(endTime - startTime, 'mm:ss'),
-      keywords: [habit.name],
-      actualDurationMinutes,
-      alarmTime: activeAlarm?.time,
-      date: format(new Date(), 'yyyy-MM-dd'),
-      skipped
-    };
-
-    setHabitLogs(prev => [newLog, ...prev]);
-    setActiveAlarm(null);
-    toast({
-      title: skipped ? "Skipped" : "Habit Logged!",
-      description: skipped ? "It's okay, try again tomorrow!" : "Your progress has been saved.",
-    });
-  };
+  if (loading) {
+    return (
+      <AuthGuard>
+        <div className="flex items-center justify-center min-h-screen bg-background">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        </div>
+      </AuthGuard>
+    );
+  }
 
   return (
-    <div className="flex flex-col min-h-screen bg-background font-body text-foreground">
-      <Header />
-      <main className="flex-grow container mx-auto p-4 md:p-6 space-y-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold">Dashboard</h1>
-          <div className="flex items-center gap-2">
-            <Label htmlFor="paid-toggle">Paid User (Mock)</Label>
-            <Switch id="paid-toggle" checked={isPaidUser} onCheckedChange={setIsPaidUser} />
-          </div>
-        </div>
+    <AuthGuard>
+      <div className="flex flex-col min-h-screen bg-background font-body text-foreground">
+        <Header />
+        <main className="flex-grow container mx-auto p-4 md:p-6 space-y-6">
 
-        <Tabs defaultValue="alarm" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 max-w-[500px]">
-            <TabsTrigger value="alarm">Alarms</TabsTrigger>
-            <TabsTrigger value="habits">Habits</TabsTrigger>
-            <TabsTrigger value="history">History</TabsTrigger>
-          </TabsList>
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="grid w-full grid-cols-5 max-w-[700px]">
+              <TabsTrigger value="dashboard" className="gap-1 text-xs sm:text-sm">
+                <BarChart3 className="w-3.5 h-3.5 hidden sm:block" />
+                대시보드
+              </TabsTrigger>
+              <TabsTrigger value="calendar" className="gap-1 text-xs sm:text-sm">
+                <CalendarDays className="w-3.5 h-3.5 hidden sm:block" />
+                캘린더
+              </TabsTrigger>
+              <TabsTrigger value="goals" className="gap-1 text-xs sm:text-sm">
+                <Target className="w-3.5 h-3.5 hidden sm:block" />
+                목표설정
+              </TabsTrigger>
+              <TabsTrigger value="shop" className="gap-1 text-xs sm:text-sm">
+                <ShoppingBag className="w-3.5 h-3.5 hidden sm:block" />
+                상점
+              </TabsTrigger>
+              <TabsTrigger value="history" className="gap-1 text-xs sm:text-sm">
+                <History className="w-3.5 h-3.5 hidden sm:block" />
+                히스토리
+              </TabsTrigger>
+            </TabsList>
 
-          {/* Alarms 탭: 알람 설정 및 로그 목록 */}
-          <TabsContent value="alarm" className="space-y-6">
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-5">
-              <div className="lg:col-span-2">
+            {/* ======================================== */}
+            {/* 대시보드 탭 */}
+            {/* ======================================== */}
+            <TabsContent value="dashboard" className="space-y-6">
+              {/* 인사말 */}
+              <div>
+                <h1 className="text-2xl font-bold">
+                  안녕하세요, {user?.displayName || '사용자'}님! 👋
+                </h1>
+                <p className="text-muted-foreground text-sm mt-1">
+                  오늘도 목표를 달성해보세요.
+                </p>
+              </div>
+
+              {/* 코인 잔액 + 오늘 달성률 카드 */}
+              <div className="grid gap-4 md:grid-cols-3">
+                {/* 코인 잔액 */}
+                <Card className="bg-gradient-to-br from-yellow-500/10 to-orange-500/10 border-yellow-500/20">
+                  <CardContent className="pt-6">
+                    <div className="flex items-center gap-3">
+                      <div className="p-3 rounded-xl bg-yellow-500/20">
+                        <Coins className="w-6 h-6 text-yellow-500" />
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">총 코인 잔액</p>
+                        <p className="text-3xl font-bold text-yellow-500">{totalCoins.toLocaleString()}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* 오늘 코인 */}
                 <Card>
-                  <CardHeader>
-                    <CardTitle>Set New Habit Alarm</CardTitle>
-                    <CardDescription>Schedule a time to log your progress.</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <AlarmSetter alarms={alarms} habits={habits} onAddAlarm={addAlarm} onDeleteAlarm={deleteAlarm} />
+                  <CardContent className="pt-6">
+                    <div className="flex items-center gap-3">
+                      <div className="p-3 rounded-xl bg-green-500/20">
+                        <TrendingUp className="w-6 h-6 text-green-500" />
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">오늘 획득 코인</p>
+                        <p className="text-3xl font-bold text-green-500">+{todayCoins}</p>
+                      </div>
+                    </div>
+                    <div className="mt-3 text-xs text-muted-foreground">
+                      출석 {todayRecord?.attendanceCoins || 0} | 달성 +{todayRecord?.bonusCoins || 0} | 차감 -{todayRecord?.urgentDeduction || 0}
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* 오늘 달성률 */}
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="flex items-center gap-3">
+                      <div className="p-3 rounded-xl bg-primary/20">
+                        <Target className="w-6 h-6 text-primary" />
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">오늘 달성률</p>
+                        <p className="text-3xl font-bold text-primary">{todayAchievement}%</p>
+                      </div>
+                    </div>
+                    <Progress value={todayAchievement} className="mt-3 h-2" />
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {verifiedCount}/{totalGoalCount} 목표 완료
+                    </p>
                   </CardContent>
                 </Card>
               </div>
 
-              <div className="lg:col-span-3">
-                <HabitLogList logs={habitLogs} habits={habits} />
-              </div>
-            </div>
-          </TabsContent>
-
-          {/* Habits 탭: 습관 관리 */}
-          <TabsContent value="habits">
-            <Card className="max-w-lg">
-              <CardHeader>
-                <CardTitle>Manage Habits</CardTitle>
-                <CardDescription>Add, edit, or remove your habits.</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <HabitManager habits={habits} setHabits={setHabits} />
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* History 탭: 기록 조회 (프리미엄) */}
-          <TabsContent value="history">
-            {isPaidUser ? (
-              <HistoryView logs={habitLogs} habits={habits} isPaidUser={isPaidUser} />
-            ) : (
-              <Card className="p-12 text-center">
-                <CardTitle className="mb-4">Premium Feature</CardTitle>
-                <CardDescription className="mb-6">
-                  History tracking and Excel export are only available for premium members.
-                </CardDescription>
-                <Button onClick={() => setIsPaidUser(true)}>Upgrade Now</Button>
+              {/* 오늘의 목표 리스트 */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <Target className="w-4 h-4" />
+                    오늘의 목표
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {todayGoals.length === 0 ? (
+                    <div className="text-center py-8">
+                      <p className="text-muted-foreground text-sm mb-3">오늘 설정된 목표가 없습니다.</p>
+                      <button
+                        onClick={() => setActiveTab('goals')}
+                        className="text-primary text-sm font-medium hover:underline"
+                      >
+                        목표 설정하러 가기 →
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      {todayGoals.map(goal => (
+                        <div
+                          key={goal.id}
+                          className="flex items-center justify-between p-3 rounded-lg bg-white/5 border border-white/10"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div
+                              className="w-3 h-3 rounded-full shrink-0"
+                              style={{ backgroundColor: PRIORITY_COLORS[goal.priority] }}
+                            />
+                            <div>
+                              <div className="text-sm font-medium">{goal.name}</div>
+                              <div className="text-xs text-muted-foreground">
+                                {PRIORITY_LABELS[goal.priority]} · {goal.timerMinutes}분
+                              </div>
+                            </div>
+                          </div>
+                          {goal.verified ? (
+                            <Badge variant="secondary" className="gap-1 text-xs">
+                              <CheckCircle2 className="w-3 h-3" />
+                              {goal.achievementPercent}%
+                            </Badge>
+                          ) : (
+                            <Badge variant="outline" className="text-xs text-muted-foreground">
+                              진행 중
+                            </Badge>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
               </Card>
-            )}
-          </TabsContent>
-        </Tabs>
-      </main>
+            </TabsContent>
 
-      {activeAlarm && (
-        <NoteModal
-          alarm={activeAlarm}
-          onLogHabit={handleLogHabit}
-          onOpenChange={() => setActiveAlarm(null)}
-          habits={habits}
-          habitLogs={habitLogs}
-        />
-      )}
-    </div>
+            {/* ======================================== */}
+            {/* 캘린더 탭 */}
+            {/* ======================================== */}
+            <TabsContent value="calendar">
+              <CalendarView
+                onAddGoal={() => setActiveTab('goals')}
+              />
+            </TabsContent>
+
+            {/* ======================================== */}
+            {/* 목표설정 탭 */}
+            {/* ======================================== */}
+            <TabsContent value="goals">
+              <GoalSetter />
+            </TabsContent>
+
+            {/* ======================================== */}
+            {/* 상점 탭 */}
+            {/* ======================================== */}
+            <TabsContent value="shop">
+              <CoinShop />
+            </TabsContent>
+
+            {/* ======================================== */}
+            {/* 히스토리 탭 */}
+            {/* ======================================== */}
+            <TabsContent value="history">
+              <HistoryView logs={[]} habits={[]} isPaidUser={true} />
+            </TabsContent>
+          </Tabs>
+        </main>
+      </div>
+    </AuthGuard>
   );
 }

@@ -128,16 +128,120 @@ export interface Alarm {
  * Represents a row in the history DB (Excel export format)
  */
 export interface HistoryRecord {
-  date: string; // 알람 세팅한 날짜
-  alarmTime: string; // 알람 세팅한 시간
-  habitName: string; // 세팅한 목표
-  actualDuration: number; // 목표를 얼마나 시행했는지 실행시간
-  yearlyGoal: number; // 기존 세팅된 연목표 시간
-  yearlyActual: number; // 연 실행시간(누적)
-  monthlyGoal: number; // 월목표시간
-  monthlyActual: number; // 월 실행시간(누적)
-  weeklyGoal: number; // 주 목표시간
-  weeklyActual: number; // 주 실행시간(누적)
-  dailyGoal: number; // 일 목표시간
-  dailyActual: number; // 일 실행시간
+  date: string;
+  alarmTime: string;
+  habitName: string;
+  actualDuration: number;
+  yearlyGoal: number;
+  yearlyActual: number;
+  monthlyGoal: number;
+  monthlyActual: number;
+  weeklyGoal: number;
+  weeklyActual: number;
+  dailyGoal: number;
+  dailyActual: number;
 }
+
+// ============================================================
+// Habit Coin 시스템 타입
+// ============================================================
+
+/** 목표 우선순위 */
+export type GoalPriority = 'urgent' | 'medium' | 'habit';
+
+/** Studymate 유형 */
+export type Studymate = 'mom' | 'dad' | 'sibling' | 'friend';
+
+/** 우선순위 한글 라벨 */
+export const PRIORITY_LABELS: Record<GoalPriority, string> = {
+  urgent: '긴급',
+  medium: '중급',
+  habit: '습관만들기',
+};
+
+/** Studymate 한글 라벨 */
+export const STUDYMATE_LABELS: Record<Studymate, string> = {
+  mom: '엄마',
+  dad: '아빠',
+  sibling: '동생',
+  friend: '친구',
+};
+
+/** 우선순위별 색상 */
+export const PRIORITY_COLORS: Record<GoalPriority, string> = {
+  urgent: '#EF4444',
+  medium: '#F59E0B',
+  habit: '#22C55E',
+};
+
+/**
+ * 날짜별 목표
+ */
+export interface Goal {
+  id: string;
+  name: string;
+  priority: GoalPriority;
+  studymate: Studymate;
+  timerMinutes: number;
+  date: string; // yyyy-MM-dd
+  achievementPercent?: number;
+  verified: boolean;
+  verifyNote?: string;
+  createdAt: string;
+}
+
+/**
+ * 일일 코인 기록
+ */
+export interface DailyRecord {
+  date: string; // yyyy-MM-dd
+  attendanceCoins: number;
+  urgentDeduction: number;
+  bonusCoins: number;
+  totalCoins: number;
+  loginRecorded: boolean;
+}
+
+/**
+ * 코인 거래 내역
+ */
+export interface CoinTransaction {
+  id: string;
+  type: 'earn' | 'spend';
+  amount: number;
+  description: string;
+  date: string;
+  createdAt: string;
+}
+
+/**
+ * 상점 상품
+ */
+export interface ShopItem {
+  id: string;
+  name: string;
+  icon: string;
+  price: number;
+  description: string;
+}
+
+/** 기본 상점 상품 리스트 */
+export const SHOP_ITEMS: ShopItem[] = [
+  { id: 'phone-1h', name: '휴대폰 1시간', icon: '📱', price: 200, description: '1시간 동안 자유롭게 휴대폰 사용' },
+  { id: 'phone-2h', name: '휴대폰 2시간', icon: '📱', price: 400, description: '2시간 동안 자유롭게 휴대폰 사용' },
+  { id: 'chicken', name: '치킨', icon: '🍗', price: 2000, description: '맛있는 치킨 한 마리' },
+  { id: 'concert', name: '콘서트 티켓', icon: '🎵', price: 10000, description: '좋아하는 아티스트 콘서트' },
+];
+
+/** 긴급 목표 하루 최대 개수 */
+export const MAX_URGENT_GOALS_PER_DAY = 5;
+
+/** 하루 최대 코인 */
+export const MAX_DAILY_COINS = 200;
+
+/** 출석 보상 코인 */
+export const ATTENDANCE_COINS = 100;
+
+/** 달성 보상 최대 코인 */
+export const ACHIEVEMENT_MAX_COINS = 100;
+
